@@ -1,0 +1,65 @@
+Pré-requisitos
+Servidor SonarQube: Você precisa ter um servidor SonarQube configurado e acessível.
+Token de Autenticação: Gere um token de autenticação no SonarQube para o projeto que você deseja analisar.
+Configuração do Workflow do GitHub Actions
+Crie um arquivo .github/workflows/sonarqube.yml no seu repositório GitHub com o seguinte conteúdo:
+
+yaml
+Copiar código
+name: SonarQube Analysis
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  sonarqube:
+    name: SonarQube Scan
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+
+    - name: Cache SonarQube packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+
+    - name: Install SonarQube Scanner
+      run: |
+        curl -sSLo /tmp/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
+        unzip /tmp/sonar-scanner.zip -d $HOME
+        export PATH="$HOME/sonar-scanner-4.6.2.2472-linux/bin:$PATH"
+
+    - name: Run SonarQube Scanner
+      env:
+        SONAR_HOST_URL: https://seu-servidor-sonarqube.com
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        sonar-scanner \
+          -Dsonar.projectKey=seu-projeto \
+          -Dsonar.sources=. \
+          -Dsonar.host.url=$SONAR_HOST_URL \
+          -Dsonar.login=$SONAR_TOKEN
+Explicação
+Triggers: Este workflow será acionado em cada push ou pull request para a branch main.
+Setup do JDK: O SonarQube Scanner requer o JDK 11.
+Cache: Para acelerar as execuções futuras, o cache dos pacotes do SonarQube é configurado.
+Instalação do SonarQube Scanner: Faz o download e instala a ferramenta de linha de comando do SonarQube Scanner.
+Execução do SonarQube Scanner: Executa o SonarQube Scanner com as configurações necessárias, usando variáveis de ambiente para o URL do servidor SonarQube e o token de autenticação.
+Variáveis de Ambiente
+SONAR_HOST_URL: URL do seu servidor SonarQube.
+SONAR_TOKEN: Token de autenticação gerado no SonarQube. Adicione este token como um segredo no seu repositório GitHub (Settings > Secrets > Actions > New repository secret).
+Com essa configuração, ao realizar push ou criar pull requests para a branch main, o GitHub Actions executará uma análise de código no SonarQube, proporcionando insights sobre a qualidade do código diretamente no seu repositório.
