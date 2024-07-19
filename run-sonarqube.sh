@@ -2,7 +2,7 @@
 set -e
 
 # Levanta os containers do Docker
-docker-compose up -d
+docker compose up -d
 
 # Aguarda alguns segundos para garantir que o SonarQube esteja pronto
 echo "Aguardando SonarQube inicializar..."
@@ -16,7 +16,7 @@ RESULT=$(docker run --rm --network=host -e SONAR_HOST_URL=http://localhost:9000 
   -Dsonar.login=sqp_495bdac2d9df6c43712e32ed21671c0c99e7d22e || echo "fail")
 
 # Para os containers do Docker após a execução
-docker-compose down
+docker compose down
 
 # Verifica o resultado e sai com um código de erro se falhou
 if [ "$RESULT" = "fail" ]; then
