@@ -1,4 +1,6 @@
 #!/bin/sh
 . "$(dirname "$0")/h"
 
+echo 'iniciando'
+
 sh ../../run-sonarqube.sh
