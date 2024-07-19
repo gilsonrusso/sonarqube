@@ -1,1 +1,4 @@
-sh ../run-sonarqube.sh
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+sh ./run-sonarqube.sh
